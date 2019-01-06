@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+#
+# prime 0.0.1
+# (C) 2019 redpeacock78
+# GPLv3 is applied to this script
+
+######################################
+#Various prime numbers are displayed.
+#Grobals:
+# FORMAT_RETURN_VAL
+# USAGE
+#Arguments:
+#  -s | --separator=
+#  -f | --format=
+#  -w | --equal-width
+#  -h | --help
+#  -v | --version
+#Returns:
+# None
+######################################
+
+
+
+#####FUNCTION######
+function FORMAT_RETURN_VAL() {
+  printf "${FORMAT}" "${LAST}" >/dev/null 2&>1
+}
+
+function USAGE() {
+  cat << EOS >&2
+prim version 0.0.1
+
+Usage: prim [OPTION]... FIRST
+   or: prim [OPTION]... FIRST LAST
+   or: prim [OPTION]... FIRST INCREMENT LAST
+Print prime numbers from FIRST to LAST, in steps of INCREMENT.
+
+Options:
+  -s ,--separator=[SEPARATOR]
+     Use STRING to separate numbers (default: \n)
+  -f ,--format=[FORMAT]
+     Use printf style floating-point FORMAT
+  -w, --equal-width
+     Equalize width by padding with leading zeroes
+  -h, --help
+     Display this help and exit
+EOS
+  exit 0
+}
+
+
+
+#####TEXT#####
+while [[ "${#}" -gt 0 ]]; do
+
+  ####DELMITER####
+  if [[ "${1}" =~ -s|--separator ]]; then
+
+    ### prim -s "${DELIMITER}" "${FIRST}" "${INTERVAL}" "${LAST}" ###
+    if [[ "${#}" -eq 5 ]]; then
+      ##VARIAVLE##
+      shift && DELIMITER="${1}"
+      shift && FIRST="$(echo ${1} | sed 's/^[0|1]$/2/')"
+      shift && INTERVAL="${1}"
+      shift && LAST="${1}"
+      ##PROCESSING##
+      if [[ -z $(seq "${FIRST}" "${INTERVAL}" "${LAST}" | factor | awk '$0*=!$3') ]]; then
+        #PRIME NUMBERS DOES NOT EXIST#
+        printf "Sorry.\nThere was no prime number between ${FIRST} and ${LAST} which increased by ${INTERVAL}.\n" && \
+	      exit 2
+      else
+        seq "${FIRST}" "${INTERVAL}" "${LAST}" \
+        | factor \
+        | awk '$0*=!$3' \
+        | tr '\n' "${DELIMITER}" \
+        | sed "s/${DELIMITER}$/\n/" && \
+        exit 0
+      fi
+
+    ### prim -s "${DELIMITER}" "${FIRST}" "${LAST}" or prim --format="${FORMAT}" "${FIRST}" "${INTERVAL}" "${LAST}"###
+    elif [[ "${#}" -eq 4 ]]; then
+      ##VARIAVLE##
+      if [[ "${1}" =~ --separator ]]; then
+        DELIMITER="$(echo ${1} | cut -d= -f 2)"
+        shift && FIRST="$(echo ${1} | sed 's/^[0|1]$/2/')"
+        shift && INTERVAL="${1}"
+        shift && LAST="${1}"
+      else
+        shift && DELIMITER="${1}"
+        shift && FIRST="$(echo ${1} | sed 's/^[0|1]$/2/')"
+        shift && LAST="${1}"
+      fi
+      ##PROCESSING##
+      if [[ -z "${INTERVAL}" ]]; then
+        if [[ -z $(seq "${FIRST}" "${LAST}" | factor | awk '$0*=!$3') ]]; then
+          #PRIME NUMBERS DOES NOT EXIST#
+          printf "Sorry.\nThere was no prime number betwenn ${FIRST} and ${LAST}.\n" && \
+	        exit 2
+        else
+          seq "${FIRST}" "${LAST}" \
+          | factor \
+          | awk '$0*=!$3' \
+          | tr '\n' "${DELIMITER}" \
+          | sed "s/${DELIMITER}$/\n/" && \
+          exit 0
+        fi
+      else
+        if [[ -z $(seq "${FIRST}" "${INTERVAL}" "${LAST}" | factor | awk '$0*=!$3') ]]; then
+          #PRIME NUMBERS DOES NOT EXIST#
+          printf "Sorry.\nThere was no prime number betwenn ${FIRST} and ${LAST} which increased by ${INTERVAL}.\n" && \
+	        exit 2
+        else
+          seq "${FIRST}" "${INTERVAL}" "${LAST}" \
+          | factor \
+          | awk '$0*=!$3' \
+          | tr '\n' "${DELIMITER}" \
+          | sed "s/${DELIMITER}$/\n/" && \
+          exit 0
+        fi
+      fi
+    fi
+  fi
+done
