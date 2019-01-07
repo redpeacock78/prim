@@ -118,6 +118,20 @@ while [[ "${#}" -gt 0 ]]; do
           exit 0
         fi
       fi
+
+    ### prim -s "${DELIMITER}" "${LAST}" or prim --format="${FORMAT}" "${FIRST}" "${LAST}"###
+    elif [[ "${#}" -eq 3 ]]; then
+      ##VARIAVLE##
+      if [[ "${1}" =~ --separator ]]; then
+        DELIMITER="$(echo ${1} | cut -d= -f 2)"
+        shift && FIRST="$(echo ${1} | sed 's/^[0|1]$/2/')"
+        shift && LAST="${1}"
+      else
+        shift && DELIMITER="${1}"
+        shift && LAST="${1}"
+      fi
+      ##PROCESSING##
+      :
     fi
   fi
 done
